@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
-import { getData } from "../logic";
+import { getData } from "../util";
 
 export default function Recipies(){
   const { category } = useParams()
@@ -10,9 +10,14 @@ export default function Recipies(){
 
   useEffect(()=>{
     const getRecipies = async () => {
-      const recipiesObj = await getData(url)
-      console.log(recipiesObj)
-      setRecipiesArr(recipiesObj.meals)
+      try {
+        const recipiesObj = await getData(url)
+        console.log(recipiesObj)
+        setRecipiesArr(recipiesObj.meals)
+      } catch (e) {
+        console.log('critical error!', e)
+      }
+      
     }
     getRecipies()
   }, [])
