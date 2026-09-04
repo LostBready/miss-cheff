@@ -1,13 +1,29 @@
-import { createContext, useState } from "react"
+import { createContext, useState, useEffect } from "react"
+import { useLocation } from "react-router"
 
-const pageStateContext = createContext(null)
 
-const PageStatusProvider = ({ children }) => {
+
+const PageStateContext = createContext(null)
+
+export default function PageStatusProvider({ children }){
+  const location = useLocation()
   const [pageStatus, setPageStatus] = useState({pageState: 'loading', pageError: null})
 
-  const changePageState = (error=null) => {
-    setPageState(prevVal=>prevVal.pageState==='loading' ? 
+  useEffect(()=>{
+    setInitialPageStatus()
+  }, [location])
+
+  const setInitialPageStatus = () => {
+    setPageStatus({pageState: 'loading', pageError: null})
+  }
+
+  const changePageStatus = (error=null) => {
+    setPageStatus(prevVal=>prevVal.pageState==='loading' ? 
       {pageState: 'loaded', pageError: error} 
       : {pageState: 'loading', pageError: error})
   }
+
+  return <PageStateContext value={{ changePageStatus, pageStatus }}>
+    { children }
+  </PageStateContext>
 }

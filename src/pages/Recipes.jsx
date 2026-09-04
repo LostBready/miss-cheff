@@ -1,26 +1,38 @@
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import { getData } from "../util";
+import Preloader from "../components/Preloader"
+import ErrorMessage from "../components/ErrorMessage"
+import RecipePreview from "../components/RecipePreview";
 
-export default function Recipies(){
+export default function recipes(){
   const { category } = useParams()
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [recipesArr, setRecipesArr] = useState([])
   const url = `https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}`
-  const [recipiesArr, setRecipiesArr] = useState([])
   
 
   useEffect(()=>{
-    const getRecipies = async () => {
+    const getRecipes = async () => {
       try {
-        const recipiesObj = await getData(url)
-        console.log(recipiesObj)
-        setRecipiesArr(recipiesObj.meals)
+        const recipesObj = await getData(url)
+        setRecipesArr(recipesObj.meals)
       } catch (e) {
-        console.log('critical error!', e)
+        console.error('critical error!', e)
+        setError(e.message)
+      } finally {
+        setIsLoading(false)
       }
       
     }
-    getRecipies()
+    getRecipes()
   }, [])
 
-  return <div>Hellooo</div>
+  console.log(recipesArr)
+
+  if (isLoading) return <Preloader/>
+  if (error) return <ErrorMessage message={error}/>
+
+  return <div>{recipesArr.map(recipe => <RecipePreview strMeal={recipe.strMeal} idMeal={recipe.idMeal}/>)}</div>
 }
