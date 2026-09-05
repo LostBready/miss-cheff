@@ -2,21 +2,15 @@ import { useState, useEffect } from "react"
 import { getData } from "../util"
 
 export default function SearcherPage(){
+
   const changeSearchObj = (e, type, name) => {
     const isOn = e.currentTarget.checked
-    if (isOn) setSearchObj(prevObj => ({ ...prevObj, [name]: type }) )
-    else {
-      const filteredObj = {}
-      Object.keys(searchObj).map((key) => {
-        if (key !== name) filteredObj[key] = searchObj[key]
-      })
-      setSearchObj(filteredObj)
-    }
+    setCurrentOption({ isOn, name, type })
   }
 
 
-  const [searchObj, setSearchObj] = useState({})
-  const [mealsMatrix, setMealsMatrix] = useState([])
+  const [currentOption, setCurrentOption] = useState({isOn: false, name: null, type: null})
+  const [mealsObj, setMealsObj] = useState({})
   const [crossingMealsArr, setCrossingMealsArr] = useState([])
   const [error, setError] = useState(null)
 
@@ -26,34 +20,41 @@ export default function SearcherPage(){
     const getMeals = async (url) => {
       try {
         const mealsObj = await getData(url)
-        const mealsArr = mealsObj.meals
-        setMealsMatrix(prevMatrix => [...prevMatrix, mealsArr])
-      } catch(err){
+        const mealsNewObj = {}
+        mealsObj.meals.forEach((meal) => {
+          mealsNewObj[meal.idMeal] = meal
+        })
+        setMealsObj(prevMealsObj => ({ ...prevMealsObj, [currentOption.name]: mealsNewObj }))
+        
+        } catch(err){
         console.error('an error incorrupted', err)
         setError(err)
       }
     }
 
-    Object.keys(searchObj).map((key) => {
+    if (! currentOption.isOn){
+      setMealsObj((prevMealsObj) => {
+        delete prevMealsObj[currentOption.name]
+        return prevMealsObj
+      })
+    } else {
       let url = ''
-      switch (searchObj[key]){
-        case ('c' || 'i'):
-          url = `https://www.themealdb.com/api/json/v1/1/filter.php?${searchObj[key]}=${key}`
+      switch (currentOption.type){
+        case ('c'):
+        case ('i'):
+          url = `https://www.themealdb.com/api/json/v1/1/filter.php?${currentOption.type}=${currentOption.name}`
           break
         case ('f'):
-          url = `https://www.themealdb.com/api/json/v1/1/search.php?${searchObj[key]}=${key}`
+          url = `https://www.themealdb.com/api/json/v1/1/search.php?${currentOption.type}=${currentOption.name}`
           break
       }
 
       console.log(url)
       getMeals(url)
+      }
+    }, [currentOption])
 
-    })
-
-    setMealsMatrix([])
-  }, [searchObj])
-
-  console.log(mealsMatrix)
+  console.log(mealsObj)
   return(
     <>
       <div class="flex flex-row gap-1.5">
