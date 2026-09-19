@@ -1,4 +1,4 @@
-export default function Recipe( {
+export default function Meal( {
    strMeal, 
    strMealThumb, 
    strInstructions, 
