@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { getData, generateOptionUrl, excludeKey, crossObjects } from "../util"
 import MealPreview from "./MealPreview"
 
@@ -6,18 +6,16 @@ import MealPreview from "./MealPreview"
 export default function MealsPreviews({ currentOption }){
   const [mealsObj, setMealsObj] = useState({})
   const [crossingMealsArr, setCrossingMealsArr] = useState([])
-  const [requestsControllers, setRequestsControllers] = useState({})
-
-  let currentRequestsControllers = {}
+  const requestsControllers = useRef({})
 
 
   useEffect(() => {
     async function getMeals(url, optionName){
       try {
         const controller = new AbortController()
-        currentRequestsControllers = {...requestsControllers, [optionName]: controller}
-        setRequestsControllers(currentRequestsControllers)
+        requestsControllers.current = {...requestsControllers, [optionName]: controller}
         const mealsObj = await getData(url, controller.signal)
+        requestsControllers.current = excludeKey(currentOption.name, requestsControllers.current)
 
         if (!mealsObj.meals) mealsObj.meals = []
 
@@ -35,20 +33,16 @@ export default function MealsPreviews({ currentOption }){
 
     if (! currentOption.isOn){
       console.log(currentOption.name)
-      console.log(Object.keys(currentRequestsControllers))
-      if (currentOption.name in Object.keys(currentRequestsControllers)){
-        currentRequestsControllers[currentOption.name].abort()
-        setRequestsControllers(prevRequestsControllers => excludeKey(currentOption.name, prevRequestsControllers))
+      console.log(Object.keys(requestsControllers.current))
+      if (currentOption.name in requestsControllers.current){
+        requestsControllers.current[currentOption.name].abort()
+        requestsControllers.current = excludeKey(currentOption.name, requestsControllers.current)
       }
       setMealsObj(prevMealsObj => excludeKey(currentOption.name, prevMealsObj))
 
     } else {
       const url = generateOptionUrl(currentOption.type, currentOption.name)
       getMeals(url, currentOption.name)
-    }
-
-    return () => {
-      setRequestsControllers(prevRequestsControllers => excludeKey(currentOption.name, prevRequestsControllers))
     }
 
     }, [currentOption])
