@@ -1,14 +1,15 @@
-export default function Option({ type, name, onInputChange }){ 
+import { useRef } from "react"
 
-  const changeSearchObj = (e, type, name) => {
-    const isOn = e.currentTarget.checked
-    onInputChange({ isOn, name, type })
+export default function Option({ type, name, onInputChange }){ 
+  const isOn = useRef(false)
+
+
+  const changeSearchObj = () => {
+    isOn.current = !isOn.current
+    onInputChange({ isOn: isOn.current, name, type: type[0] })
   }
 
   return (
-    <div className="flex flex-row gap-1.5">
-        <input type="checkbox" onChange={(e)=>changeSearchObj(e, type[0], name)}/>
-        <p>{name}</p>
-    </div>
+    <button className="border-2 rounded-md" onClick={changeSearchObj}>{name}</button>
   )
 }

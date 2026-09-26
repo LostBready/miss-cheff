@@ -38,6 +38,6 @@ export default function OptionsCatalog({ onInputChange }){
     }, [])
 
   return (
-    <div>{Object.keys(optionsCatalog).map(optionType => <OptionType type={optionType} optionsNames={optionsCatalog[optionType]} onInputChange={onInputChange}/>)}</div>
+    <div className='flex flex-row'>{Object.keys(optionsCatalog).map(optionType => <OptionType type={optionType} optionsNames={optionsCatalog[optionType]} onInputChange={onInputChange}/>)}</div>
   )
 }

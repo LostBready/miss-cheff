@@ -27,6 +27,7 @@ export default function MealsPreviews({ currentOption }){
         setMealsObj(prevMealsObj => ({ ...prevMealsObj, [optionName]: mealsNewObj }))
         
         } catch(err){
+          console.log(url)
         console.error('an error incorrupted', err)
       }
     }

@@ -57,3 +57,11 @@ export const crossObjects = (mainObj) => {
   const crossingArr = crossingIds.map((idMeal) => matchChecking[idMeal])
   return crossingArr
 }
+
+export const findByName = (arr, string) => {
+  const namesObj = {}
+  for (const name of arr){
+    namesObj[name] = name.split(' ')
+  }
+  return arr.filter(element => element.toLowerCase().includes(name.toLowerCase()))
+}
